@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="EgoFound3R: a unified end-to-end model for world-space hand reconstruction with point-wise interaction attributes from egocentric video."
+    />
+    <meta property="og:title" content="EgoFound3R: End-to-End Egocentric Hand Reconstruction in World Space with Point-Wise Interaction Attributes" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="World-space hand reconstruction with point-wise visibility, contact, and distance attributes from monocular egocentric video, in one end-to-end pass." />
+    <meta property="og:image" content="assets/img/figures/og.jpg" />
+    <title>EgoFound3R: End-to-End Egocentric Hand Reconstruction in World Space with Point-Wise Interaction Attributes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231f4544'/><text x='32' y='43' font-family='Times New Roman,Times,serif' font-size='26' font-weight='bold' fill='%23ffffff' text-anchor='middle'>Ego</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-backdrop"></div>
+      <div class="container hero-container">
+        <h1>EgoFound3R: End-to-End Egocentric Hand Reconstruction in World Space with Point-Wise Interaction Attributes</h1>
+
+        <div class="authors">
+          <div class="authors-row">
+            <span class="author-name"><a href="https://frank-f2022.github.io/">Hongming Fu</a><sup>1</sup></span>
+            <span class="author-name">Jingcheng Shi<sup>2</sup></span>
+            <span class="author-name"><a href="https://wenjiawang0312.github.io/">Wenjia Wang</a><sup>3</sup></span>
+            <span class="author-name">Binhua Zuo<sup>4</sup></span>
+            <span class="author-name"><a href="https://www.bozhao.me/">Bo Zhao</a><sup>1,&dagger;</sup></span>
+          </div>
+        </div>
+
+        <p class="affiliations">
+          <span><sup>1</sup>School of AI, Shanghai Jiao Tong University</span>
+          <span><sup>2</sup>Rutgers University</span>
+          <span><sup>3</sup>The University of Hong Kong</span>
+          <span><sup>4</sup>QuicRobot</span>
+        </p>
+        <p class="author-note">&dagger; Corresponding author.</p>
+
+        <div class="button-row">
+          <a class="btn btn-paper" href="assets/EgoFound3R.pdf" target="_blank" rel="noopener">
+            <i class="fas fa-file-pdf"></i>
+            <span>PDF</span>
+          </a>
+          <a class="btn btn-github" href="https://github.com/MINT-SJTU/EgoFound3R" target="_blank" rel="noopener">
+            <i class="fab fa-github"></i>
+            <span>Code</span>
+          </a>
+          <a class="btn btn-video" href="#demos">
+            <i class="fas fa-video"></i>
+            <span>Video</span>
+          </a>
+          <a class="btn btn-bibtex" href="#bibtex">
+            <i class="fas fa-quote-right"></i>
+            <span>BibTeX</span>
+          </a>
+          
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section section-tight">
+        <div class="container narrow">
+          <figure class="media-card media-card--hero">
+            <a href="assets/img/figures/teaser.webp" target="_blank" rel="noopener" title="Open the full-resolution figure">
+              <img
+                src="assets/img/figures/teaser.webp"
+                alt="EgoFound3R teaser figure"
+                width="2800"
+                height="912"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              EgoFound3R at a glance: end-to-end world-space hand reconstruction with point-wise interaction
+              attributes; the radar panel summarizes the joint-error comparison with prior methods.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container narrow">
+          <h2>Abstract</h2>
+          <div class="abstract-card">
+            <p>
+              Egocentric video has become a primary source of supervision for embodied models, and its value rests on
+              recovering hand motion in world coordinates, which camera motion and hand occlusion make difficult.
+              Existing reconstruction pipelines typically separate hand and scene estimation, leave interaction
+              attributes to separate task-specific models, and invoke several models per video, so no prior
+              reconstruction model estimates these attributes and throughput becomes a practical constraint on
+              large-scale annotation. We therefore introduce <strong>EgoFound3R</strong>, a unified end-to-end model
+              that estimates world-space hand geometry in a metric scale shared with the scene, and predicts point-wise
+              interaction attributes, including visibility, contact, and distance.
+            </p>
+            <p>
+              The model integrates three designs: (i) structured hand prompts that transfer pretrained geometric priors
+              to world-space hand reconstruction; (ii) an explicit hand representation that decodes hand geometry and
+              interaction attributes; and (iii) a shared-parameter multi-rate design that lowers inference cost.
+              Together, these designs predict hand geometry and point-wise attributes in one pass. On OakInk-v2, TACO,
+              and HOI4D, EgoFound3R reduces the mean per-joint position error (MPJPE) by 43.2%, 22.4%, and 11.6% over
+              previous methods and predicts point-wise contact and distance alongside the geometry in the same pass,
+              while attaining approximately 6&times; higher throughput.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>Key Results</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <p class="stat-kicker">Hand accuracy</p>
+              <p class="stat-value">43.2%</p>
+              <p class="stat-desc">
+                MPJPE reduction over previous methods on OakInk-v2, together with 22.4% on TACO and 11.6% on HOI4D.
+              </p>
+            </div>
+            <div class="stat-card">
+              <p class="stat-kicker">Throughput</p>
+              <p class="stat-value">28.69&ndash;48.63 FPS</p>
+              <p class="stat-desc">
+                Hand-rate throughput (H FPS) at 512&times;512 on one NVIDIA H20 across the three configurations. The
+                default runs at 28.69 FPS, 5.97&times; the 4.81 FPS of WiLoR, and the lightest reaches 48.63 FPS.
+              </p>
+            </div>
+            <div class="stat-card">
+              <p class="stat-kicker">Single model</p>
+              <p class="stat-value">1 pass</p>
+              <p class="stat-desc">
+                World-space hand geometry with point-wise visibility, contact, and distance in one end-to-end
+                forward pass.
+              </p>
+            </div>
+          </div>
+          <figure class="media-card media-card--efficiency">
+            <a href="assets/img/figures/efficiency.webp" target="_blank" rel="noopener" title="Open the full-resolution figure">
+              <img
+                src="assets/img/figures/efficiency.webp"
+                alt="Inference efficiency: hand-rate throughput versus peak GPU memory for EgoFound3R and the compared baselines"
+                width="2600"
+                height="844"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption>
+              <strong>Inference efficiency.</strong> Hand-rate throughput (H FPS) against peak GPU memory on one
+              NVIDIA H20, with circle area proportional to the forward parameter count. EgoFound3R processes 28.69 H
+              FPS at 512&times;512, 5.97&times; the 4.81 FPS of WiLoR and faster than every compared hand pipeline.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section-muted">
+        <div class="container">
+          <h2>Method Overview</h2>
+          <figure class="media-card media-card--pipeline">
+            <a href="assets/img/figures/framework.webp" target="_blank" rel="noopener" title="Open the full-resolution figure">
+              <img
+                src="assets/img/figures/framework.webp"
+                alt="EgoFound3R framework"
+                width="2400"
+                height="975"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+          </figure>
+          <p class="media-caption media-caption--pipeline">
+            <strong>Overview of EgoFound3R.</strong> Egocentric video input is encoded at the hand rate H, and the
+            built-in DINOv3 features of the frozen VGGT-&Omega; backbone provide the shared visual features, from which
+            an adapter builds structured root, joint, and surface prompts. A bidirectional temporal Transformer links
+            the two hands across H, and pooling neighboring prompts yields global scene anchors G &sube; H at an
+            adjustable H:G ratio. The prompted VGGT-&Omega; aggregator drives the explicit hand head that decodes hand
+            geometry, visibility, contact, and distance, and the scene and metric heads that place the hands in world
+            coordinates.
+          </p>
+        </div>
+      </section>
+
+      <section class="section section-accent" id="demos">
+        <div class="container">
+          <h2>Demo Videos</h2>
+          <p class="section-lead">
+            In-the-wild egocentric sequences reconstructed end-to-end by a single EgoFound3R model.
+          </p>
+          <div id="demo-spotlight"></div>
+          <p class="media-caption media-caption--demo">
+            Left: the monocular egocentric RGB input. Middle: point-wise geometry, visibility, contact, and distance.
+            Right: the reconstructed hands placed in the scene from four viewpoints.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2>Qualitative Results</h2>
+          <p class="section-lead">
+            Camera-space panels compare hand geometry and the point-wise attributes (visibility, contact, distance)
+            between EgoFound3R (<em>Pred</em>) and the ground truth (<em>GT</em>). World-space panels render the
+            reconstructed hands from five viewpoints, pink for the left and blue for the right. Use the arrows or the
+            sequence chips to switch between clips.
+          </p>
+          <div id="comparison-galleries" class="comparison-galleries"></div>
+        </div>
+      </section>
+
+      <section class="section" id="bibtex">
+        <div class="container narrow">
+          <h2>BibTeX</h2>
+          <div class="code-block">
+            <button class="copy-button" type="button" data-copy-target="bibtex-code">Copy</button>
+            <pre><code id="bibtex-code">@article{fu2026egofound3r,
+  title={EgoFound3R: End-to-End Egocentric Hand Reconstruction in World Space with Point-Wise Interaction Attributes},
+  author={Fu, Hongming and Shi, Jingcheng and Wang, Wenjia and Zuo, Binhua and Zhao, Bo},
+  year={2026}
+}</code></pre>
+          </div>
+          
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container narrow">
+        <p class="footer-contact">Contact: {fuhongming, bo.zhao}@sjtu.edu.cn</p>
+      </div>
+    </footer>
+
+    <script>
+      const demoVideos = [
+        { label: "Demo 01", src: "videos/demo/0.mp4" },
+        { label: "Demo 02", src: "videos/demo/1.mp4" },
+        { label: "Demo 03", src: "videos/demo/2.mp4" }
+      ];
+
+      const range = (count) => Array.from({ length: count }, (_, index) => String(index));
+      const cameraAspect = (index) => (index <= 5 ? "1280 / 1084" : index === 6 ? "1280 / 822" : "1280 / 1108");
+
+      const comparisonGroups = [
+        {
+          title: "Camera-Space Comparison",
+          path: "videos/camera",
+          files: range(18),
+          aspectRatio: "1280 / 1108",
+          aspectFor: (fileName) => cameraAspect(Number(fileName)),
+          open: true
+        },
+        {
+          title: "World-Space Comparison",
+          path: "videos/world",
+          files: range(17),
+          aspectRatio: "1600 / 884",
+          open: true
+        }
+      ];
+
+      const demoRoot = document.getElementById("demo-spotlight");
+      const comparisonRoot = document.getElementById("comparison-galleries");
+      const visibilityResumeHandlers = [];
+      const safePlay = async (video) => {
+        try {
+          await video.play();
+        } catch {
+        }
+      };
+
+      const createSpotlightViewer = ({ title, items, autoplay = true, aspectRatio = null, variant = "" }) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = `spotlight-viewer${variant ? ` spotlight-viewer--${variant}` : ""}`;
+        if (aspectRatio) {
+          wrapper.style.setProperty("--spotlight-aspect", aspectRatio);
+        }
+        wrapper.innerHTML = `
+          <div class="spotlight-stage">
+            <button type="button" class="spotlight-arrow spotlight-arrow--prev" aria-label="Previous ${title}">&#8249;</button>
+            <div class="spotlight-frame">
+              <video class="spotlight-video" controls playsinline muted loop autoplay preload="auto"></video>
+            </div>
+            <button type="button" class="spotlight-arrow spotlight-arrow--next" aria-label="Next ${title}">&#8250;</button>
+          </div>
+          <div class="spotlight-selector" role="tablist" aria-label="${title} sequences"></div>
+        `;
+
+        const video = wrapper.querySelector(".spotlight-video");
+        const frame = wrapper.querySelector(".spotlight-frame");
+        const prevButton = wrapper.querySelector(".spotlight-arrow--prev");
+        const nextButton = wrapper.querySelector(".spotlight-arrow--next");
+        const selector = wrapper.querySelector(".spotlight-selector");
+
+        let currentIndex = 0;
+        let shouldAutoplay = autoplay;
+        let loadToken = 0;
+        let autoplayRetryTimerIds = [];
+        let suppressPauseTracking = false;
+        let userPausedCurrentItem = false;
+        const selectorButtons = [];
+
+        video.autoplay = true;
+        video.defaultMuted = true;
+        video.muted = true;
+        video.playsInline = true;
+
+        const clearAutoplayRetries = () => {
+          autoplayRetryTimerIds.forEach((timerId) => window.clearTimeout(timerId));
+          autoplayRetryTimerIds = [];
+        };
+
+        const cancelAutoplayForCurrentItem = () => {
+          userPausedCurrentItem = true;
+          clearAutoplayRetries();
+        };
+
+        const queueAutoplay = (token, delays = [0, 120, 320, 700, 1400]) => {
+          clearAutoplayRetries();
+          if (!shouldAutoplay || userPausedCurrentItem) {
+            return;
+          }
+
+          autoplayRetryTimerIds = delays.map((delay) =>
+            window.setTimeout(() => {
+              if (token !== loadToken || !shouldAutoplay || userPausedCurrentItem) {
+                return;
+              }
+              safePlay(video);
+            }, delay)
+          );
+        };
+
+        const requestAutoplay = () => {
+          if (!shouldAutoplay || userPausedCurrentItem) {
+            return;
+          }
+          queueAutoplay(loadToken);
+        };
+
+        const revealFirstFrame = () => {
+          if (!video.paused) return;
+          if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+          if (video.currentTime > 0.0005) return;
+          try {
+            video.currentTime = Math.min(0.001, video.duration / 2);
+          } catch {
+          }
+        };
+
+        const setCurrent = (nextIndex) => {
+          currentIndex = (nextIndex + items.length) % items.length;
+          const item = items[currentIndex];
+          const aspect = item.aspect || aspectRatio;
+          if (aspect) {
+            wrapper.style.setProperty("--spotlight-aspect", aspect);
+          }
+          loadToken += 1;
+          userPausedCurrentItem = false;
+          clearAutoplayRetries();
+          suppressPauseTracking = true;
+          video.pause();
+          suppressPauseTracking = false;
+          video.src = item.src;
+          video.load();
+          selectorButtons.forEach((button, index) => {
+            button.classList.toggle("is-active", index === currentIndex);
+            button.setAttribute("aria-selected", index === currentIndex ? "true" : "false");
+          });
+          selectorButtons[currentIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+          if (shouldAutoplay) {
+            requestAutoplay();
+          }
+        };
+
+        items.forEach((item, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "spotlight-chip";
+          button.textContent = item.label;
+          button.setAttribute("role", "tab");
+          button.setAttribute("aria-selected", "false");
+          button.addEventListener("click", () => setCurrent(index));
+          selector.appendChild(button);
+          selectorButtons.push(button);
+        });
+
+        prevButton.addEventListener("click", () => setCurrent(currentIndex - 1));
+        nextButton.addEventListener("click", () => setCurrent(currentIndex + 1));
+
+        const toggleFullscreen = async () => {
+          try {
+            if (document.fullscreenElement) {
+              await document.exitFullscreen();
+              return;
+            }
+
+            if (frame.requestFullscreen) {
+              await frame.requestFullscreen();
+              return;
+            }
+
+            if (video.webkitEnterFullscreen) {
+              video.webkitEnterFullscreen();
+            }
+          } catch {
+          }
+        };
+
+        video.addEventListener("dblclick", async (event) => {
+          event.preventDefault();
+          await toggleFullscreen();
+        });
+
+        video.addEventListener("loadedmetadata", () => {
+          revealFirstFrame();
+          requestAutoplay();
+        });
+
+        video.addEventListener("loadeddata", revealFirstFrame);
+        video.addEventListener("canplay", requestAutoplay);
+        video.addEventListener("canplaythrough", requestAutoplay);
+
+        video.addEventListener("pause", () => {
+          if (suppressPauseTracking || video.ended) {
+            return;
+          }
+          cancelAutoplayForCurrentItem();
+        });
+
+        video.addEventListener("play", () => {
+          userPausedCurrentItem = false;
+        });
+
+        visibilityResumeHandlers.push(requestAutoplay);
+
+        setCurrent(0);
+
+        return {
+          root: wrapper,
+          play: () => {
+            shouldAutoplay = true;
+            userPausedCurrentItem = false;
+            requestAutoplay();
+          },
+          pause: () => {
+            shouldAutoplay = false;
+            cancelAutoplayForCurrentItem();
+            suppressPauseTracking = true;
+            video.pause();
+            suppressPauseTracking = false;
+          }
+        };
+      };
+
+      const demoViewer = createSpotlightViewer({
+        title: "demo videos",
+        items: demoVideos,
+        autoplay: true,
+        aspectRatio: "1920 / 640",
+        variant: "demo"
+      });
+      demoRoot.appendChild(demoViewer.root);
+      window.requestAnimationFrame(() => {
+        demoViewer.play();
+      });
+
+      comparisonGroups.forEach((group) => {
+        const details = document.createElement("details");
+        details.className = "comparison-block";
+        details.open = group.open;
+
+        const summary = document.createElement("summary");
+        const summaryText = document.createElement("span");
+        summaryText.textContent = group.title;
+        summary.appendChild(summaryText);
+        details.appendChild(summary);
+
+        const panel = document.createElement("div");
+        panel.className = "comparison-panel";
+        const viewer = createSpotlightViewer({
+          title: group.title,
+          items: group.files.map((fileName) => ({
+            label: `Seq ${fileName}`,
+            src: `${group.path}/${fileName}.mp4`,
+            aspect: group.aspectFor ? group.aspectFor(fileName) : null
+          })),
+          autoplay: group.open,
+          aspectRatio: group.aspectRatio,
+          variant: "qualitative"
+        });
+        panel.appendChild(viewer.root);
+        details.appendChild(panel);
+        comparisonRoot.appendChild(details);
+
+        details.addEventListener("toggle", () => {
+          if (details.open) {
+            viewer.play();
+          } else {
+            viewer.pause();
+          }
+        });
+
+        if (details.open) {
+          window.requestAnimationFrame(() => {
+            viewer.play();
+          });
+        }
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") {
+          return;
+        }
+        visibilityResumeHandlers.forEach((resumeAutoplay) => resumeAutoplay());
+      });
+
+      document.querySelectorAll(".copy-button").forEach((button) => {
+        const originalText = button.textContent;
+        button.addEventListener("click", async () => {
+          const targetId = button.dataset.copyTarget;
+          const target = document.getElementById(targetId);
+          if (!target) return;
+
+          try {
+            await navigator.clipboard.writeText(target.textContent);
+            button.textContent = "Copied";
+          } catch {
+            button.textContent = "Failed";
+          }
+
+          window.setTimeout(() => {
+            button.textContent = originalText;
+          }, 1400);
+        });
+      });
+    </script>
+  </body>
+</html>

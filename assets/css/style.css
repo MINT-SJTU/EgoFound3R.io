@@ -602,3 +602,15 @@ code {
 .media-card--efficiency {
   margin-top: 28px;
 }
+
+.media-card--video {
+  padding: 18px;
+}
+
+.overview-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  background: #0f1718;
+}
